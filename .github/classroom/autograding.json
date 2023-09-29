@@ -1,0 +1,44 @@
+{
+  "tests": [
+    {
+      "name": "Test Reformat Dates",
+      "setup": "",
+      "run": "pytest -k 'reformat_dates'",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 20
+    },
+    {
+      "name": "Test date_range",
+      "setup": "",
+      "run": "pytest -k 'date_range'",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 20
+    },
+    {
+      "name": "Test add_date_range",
+      "setup": "",
+      "run": "pytest -k 'add_date_range'",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 20
+    },
+    {
+      "name": "Test fees_report",
+      "setup": "",
+      "run": "pytest -k 'fees_report'",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 40
+    }
+  ]
+}
