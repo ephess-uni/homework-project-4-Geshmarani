@@ -6,29 +6,96 @@ from collections import defaultdict
 
 
 def reformat_dates(old_dates):
-    """Accepts a list of date strings in format yyyy-mm-dd, re-formats each
-    element to a format dd mmm yyyy--01 Jan 2001."""
-    pass
+    """
+    Reformats a list of date strings from '%Y-%m-%d' format to '%d %b %Y' format.
+
+    Args:
+        old_dates (list): A list of date strings in '%Y-%m-%d' format.
+
+    Returns:
+        list: A list of reformatted date strings in '%d %b %Y' format.
+    """
+    dates = []
+    for date_str in old_dates:
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+        formatted_date = date_obj.strftime('%d %b %Y')
+        dates.append(formatted_date)
+    return dates
 
 
 def date_range(start, n):
-    """For input date string `start`, with format 'yyyy-mm-dd', returns
-    a list of of `n` datetime objects starting at `start` where each
-    element in the list is one day after the previous."""
-    pass
+    """
+    Generates a list of datetime objects starting from a given date and extending for 'n' days.
+
+    Args:
+        start (str): A date string in '%Y-%m-%d' format.
+        n (int): The number of days for which to generate dates.
+
+    Returns:
+        list: A list of datetime objects representing the date range.
+    """
+    if not isinstance(start, str):
+        raise TypeError("start should be a string")
+    if not isinstance(n, int):
+        raise TypeError("n should be an integer")
+    date = datetime.strptime(start, '%Y-%m-%d')
+    date_list = [date + timedelta(days=i) for i in range(n)]
+    return date_list
 
 
 def add_date_range(values, start_date):
-    """Adds a daily date range to the list `values` beginning with
-    `start_date`.  The date, value pairs are returned as tuples
-    in the returned list."""
-    pass
+    """
+    Combines a list of values with a date range starting from a specified date.
+
+    Args:
+        values (list): A list of values to be combined with dates.
+        start_date (str): A date string in '%Y-%m-%d' format.
+
+    Returns:
+        list: A list of tuples, each containing a datetime object and a corresponding value.
+    """
+    obj = date_range(start_date, len(values))
+    result = [(date, value) for date, value in zip(obj, values)]
+    return result
 
 
 def fees_report(infile, outfile):
-    """Calculates late fees per patron id and writes a summary report to
-    outfile."""
-    pass
+    """
+    Generates a fees report based on checkout, due, and return dates in a CSV file.
+
+    Args:
+        infile (str): The path to the input CSV file.
+        outfile (str): The path to the output CSV file.
+
+    Returns:
+        None
+    """
+    late_fees = defaultdict(float)
+    all_patrons = set() 
+    
+    with open(infile, 'r') as file:
+        reader = DictReader(file)
+        for row in reader:
+            checkout_date = datetime.strptime(row['date_checkout'], '%m/%d/%Y')
+            due_date = datetime.strptime(row['date_due'], '%m/%d/%Y')
+            returned_date = datetime.strptime(row['date_returned'], '%m/%d/%Y')  # Adjust date format
+            
+            if returned_date > due_date:
+                days_late = (returned_date - due_date).days
+                late_fees[row['patron_id']] += days_late * 0.25
+            
+            all_patrons.add(row['patron_id'])  
+    
+    for patron_id in all_patrons:
+        if patron_id not in late_fees:
+            late_fees[patron_id] = 0.0
+    
+    with open(outfile, 'w', newline='') as file:
+        writer = DictWriter(file, fieldnames=['patron_id', 'late_fees'])
+        writer.writeheader()
+        for patron_id, fee in late_fees.items():
+            writer.writerow({'patron_id': patron_id, 'late_fees': f'{fee:.2f}'})
+
 
 
 # The following main selection block will only run when you choose
